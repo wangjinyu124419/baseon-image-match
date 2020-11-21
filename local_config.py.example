@@ -1,0 +1,6 @@
+ES_HOST='localhost'
+ES_PORT=9200
+IMAGE_PATHS = [r'E:\爬虫']'
+UPLOAD_PATH = 'upload\\'
+STATIC_FOLDER = 'E:\\'
+STATIC_URL_PATH = '/static'

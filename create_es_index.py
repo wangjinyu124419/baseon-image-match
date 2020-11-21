@@ -1,13 +1,12 @@
 import hashlib
 import os
-from redis import Redis
-from PIL import Image
-from elasticsearch import Elasticsearch
-from image_match.elasticsearch_driver import SignatureES
-from gevent.pool import Pool,joinall
-import  traceback
-from PIL import ImageFile
 
+from PIL import ImageFile
+from elasticsearch import Elasticsearch
+from gevent.pool import Pool, joinall
+from redis import Redis
+
+from image_match.elasticsearch_driver import SignatureES
 from local_config import IMAGE_PATHS
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -31,7 +30,7 @@ def insert_es(img_path):
         print(e)
         # print(traceback.format_exc())
     else:
-        print('入库完成:%s'%img_path)
+        print('入库完成:%s' % img_path)
         img_path_hash = get_md5(img_path)
         redis_client.set(img_path_hash, 1)
 
@@ -42,6 +41,7 @@ def get_md5(file_path):
     hash_code = md5_obj.hexdigest()
     return hash_code
 
+
 def validate(image_path):
     # try:
     #     Image.open(image_path)
@@ -49,7 +49,7 @@ def validate(image_path):
     #     print(e, image_path)
     #     return  False
     format = image_path.split('.')[-1].lower()
-    if format not in ['jpg','png','gif','jpeg','bmp']:
+    if format not in ['jpg', 'png', 'gif', 'jpeg', 'bmp']:
         return False
     # file_md5 = get_md5(image_path)
     file_hash = get_md5(image_path)
@@ -60,8 +60,9 @@ def validate(image_path):
     return True
     # return file_md5
 
+
 def handle_one(path):
-    print('处理根目录:%s'%path)
+    print('处理根目录:%s' % path)
     pool_list = []
     for root, dirs, files in os.walk(path):
         for file in files:
@@ -76,5 +77,7 @@ def main():
     # all_root_path_list = ['K:\新建文件夹']
     for root_path in all_root_path_list:
         handle_one(root_path)
+
+
 if __name__ == '__main__':
     main()

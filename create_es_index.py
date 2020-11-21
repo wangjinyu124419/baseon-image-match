@@ -5,7 +5,12 @@ from PIL import Image
 from elasticsearch import Elasticsearch
 from image_match.elasticsearch_driver import SignatureES
 from gevent.pool import Pool,joinall
+import  traceback
+from PIL import ImageFile
 
+from local_config import IMAGE_PATHS
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 es = Elasticsearch()
 
 print(es.cluster)
@@ -22,9 +27,11 @@ def insert_es(img_path):
     try:
         ses.add_image(img_path)
     except Exception as e:
-        print(e)
-    else:
         print(img_path)
+        print(e)
+        # print(traceback.format_exc())
+    else:
+        print('入库完成:%s'%img_path)
         img_path_hash = get_md5(img_path)
         redis_client.set(img_path_hash, 1)
 
@@ -48,7 +55,7 @@ def validate(image_path):
     file_hash = get_md5(image_path)
     exist = redis_client.get(file_hash)
     if exist:
-        print("已入库:%s" % image_path)
+        # print("已入库:%s" % image_path)
         return False
     return True
     # return file_md5
@@ -65,7 +72,7 @@ def handle_one(path):
 
 def main():
     print('启动程序')
-    all_root_path_list = ['K:\新建文件夹','K:\爬虫','F:\新建文件夹','H:\新建文件夹']
+    all_root_path_list = IMAGE_PATHS
     # all_root_path_list = ['K:\新建文件夹']
     for root_path in all_root_path_list:
         handle_one(root_path)

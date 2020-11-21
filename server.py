@@ -14,9 +14,9 @@ from elasticsearch import Elasticsearch
 
 from image_match.elasticsearch_driver import SignatureES
 from pathlib import Path
+from local_config import ES_HOST,ES_PORT,IMAGE_PATHS
 
-# es = Elasticsearch(hosts='192.168.3.8',port=9400)
-es = Elasticsearch()
+es = Elasticsearch(hosts=ES_HOST,port=ES_PORT)
 ses = SignatureES(es, distance_cutoff=0.55)
 
 

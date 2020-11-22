@@ -20,19 +20,21 @@ print('初始化完毕')
 
 
 def insert_es(img_path):
-    is_valid = validate(img_path)
-    if not is_valid:
+    if not validate_format(img_path):
+        return
+
+    file_hash = get_md5(img_path)
+    if redis_client.get(file_hash):
+        # print("已入库:%s" % img_path)
         return
     try:
         ses.add_image(img_path)
     except Exception as e:
-        print(img_path)
-        print(e)
+        '图片入库异常,路径:{},异常:{}'.format(img_path,str(e))
         # print(traceback.format_exc())
     else:
         print('入库完成:%s' % img_path)
-        img_path_hash = get_md5(img_path)
-        redis_client.set(img_path_hash, 1)
+        redis_client.set(file_hash, 1)
 
 
 def get_md5(file_path):
@@ -42,7 +44,7 @@ def get_md5(file_path):
     return hash_code
 
 
-def validate(image_path):
+def validate_format(image_path):
     # try:
     #     Image.open(image_path)
     # except Exception as e:
@@ -50,12 +52,6 @@ def validate(image_path):
     #     return  False
     format = image_path.split('.')[-1].lower()
     if format not in ['jpg', 'png', 'gif', 'jpeg', 'bmp']:
-        return False
-    # file_md5 = get_md5(image_path)
-    file_hash = get_md5(image_path)
-    exist = redis_client.get(file_hash)
-    if exist:
-        # print("已入库:%s" % image_path)
         return False
     return True
     # return file_md5
@@ -80,4 +76,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # redis_client.flushall()
     main()
